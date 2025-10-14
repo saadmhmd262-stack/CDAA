@@ -1,0 +1,110 @@
+/* متغيرات الألوان لتسهيل التعديل مستقبلاً */
+:root {
+    --primary-color: #d32f2f;
+    --primary-hover-color: #b71c1c;
+    --success-color: #48bb78;
+    --success-hover-color: #38a169;
+    --background-color: #f4f7f9;
+    --text-color: #333;
+    --container-bg: white;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: var(--container-bg);
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+p {
+    color: #718096;
+    margin-bottom: 30px;
+}
+
+input[type="file"] {
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+button:hover {
+    background-color: var(--primary-hover-color);
+}
+
+/* تصميم الزر عندما يكون معطلاً */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#status-message {
+    margin-top: 20px;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+.hidden {
+    display: none;
+}
+
+#result-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.result-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#result-url {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    direction: ltr;
+    box-sizing: border-box;
+}
+
+#copy-btn {
+    background-color: var(--success-color);
+    white-space: nowrap; /* لمنع كلمة "نسخ" من النزول لسطر جديد */
+}
+
+#copy-btn:hover {
+    background-color: var(--success-hover-color);
+}
