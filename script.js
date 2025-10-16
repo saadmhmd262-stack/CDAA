@@ -1,14 +1,11 @@
 // --- مفاتيح Supabase الخاصة بك ---
 const SUPABASE_URL = 'https://cpobpuwxahmgkfkylsrt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwb2JwdXd4YWhtZ2tma3lsc3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODMzMzYsImV4cCI6MjA3NjE1OTMzNn0.zuko3Ya8-h_ufy9TIOqp5PdOH2iekYGxLGugZU6qb3U';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI احذفلي شغلة تسجيل الدخول1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwb2JwdXd4YWhtZ2tma3lsc3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODMzMzYsImV4cCI6MjA3NjE1OTMzNn0.zuko3Ya8-h_ufy9TIOqp5PdOH2iekYGxLGugZU6qb3U';
 // ------------------------------------
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // تعريف عناصر الصفحة
-const uploaderSection = document.getElementById('uploader-section');
-const loginPrompt = document.getElementById('login-prompt');
-const logoutBtn = document.getElementById('logout-btn');
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
 const statusMessage = document.getElementById('status-message');
@@ -18,22 +15,6 @@ const copyBtn = document.getElementById('copy-btn');
 const spinner = uploadBtn.querySelector('span');
 const progressBarContainer = document.getElementById('progress-bar-container');
 const progressBar = document.getElementById('progress-bar');
-
-// التحقق من حالة تسجيل الدخول
-supabase.auth.onAuthStateChange((event, session) => {
-    if (session) {
-        uploaderSection.classList.remove('d-none');
-        loginPrompt.classList.add('d-none');
-    } else {
-        uploaderSection.classList.add('d-none');
-        loginPrompt.classList.remove('d-none');
-    }
-});
-
-// تسجيل الخروج
-logoutBtn.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-});
 
 // دالة رفع الملفات
 const handleUpload = async () => {
@@ -52,7 +33,7 @@ const handleUpload = async () => {
     
     const fileName = `${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
-        .from('uploads')
+        .from('uploads') // اسم الـ bucket الذي أنشأته
         .upload(fileName, file, {
             cacheControl: '3600',
             upsert: false
@@ -74,7 +55,7 @@ const handleUpload = async () => {
 
 // دالة نسخ الرابط
 const copyUrlToClipboard = () => {
-    resultUrlInput.select();
+    resultUrl.select();
     document.execCommand('copy');
     copyBtn.textContent = 'تم النسخ!';
     setTimeout(() => { copyBtn.textContent = 'نسخ'; }, 2000);
