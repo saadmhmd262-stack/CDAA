@@ -1,65 +1,72 @@
-// --- الصق كود إعداد Firebase الخاص بك هنا ---
-const firebaseConfig = {
-    apiKey: "AIzaSy...",
-    authDomain: "your-project-id.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project-id.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abcdef123456"
-};
-// -----------------------------------------
+// --- مفاتيح Supabase الخاصة بك ---
+const SUPABASE_URL = 'https://cpobpuwxahmgkfkylsrt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwb2JwdXd4YWhtZ2tma3lsc3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODMzMzYsImV4cCI6MjA3NjE1OTMzNn0.zuko3Ya8-h_ufy9TIOqp5PdOH2iekYGxLGugZU6qb3U';
+// ------------------------------------
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // تعريف عناصر الصفحة
+const uploaderSection = document.getElementById('uploader-section');
+const loginPrompt = document.getElementById('login-prompt');
+const logoutBtn = document.getElementById('logout-btn');
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
 const statusMessage = document.getElementById('status-message');
 const resultSection = document.getElementById('result-section');
 const resultUrlInput = document.getElementById('result-url');
 const copyBtn = document.getElementById('copy-btn');
-const progressBarContainer = document.getElementById('progress-bar-container');
-const progressBar = document.getElementById('progress-bar');
+const spinner = uploadBtn.querySelector('span');
 
-const handleUpload = () => {
+// التحقق من حالة تسجيل الدخول
+supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+        // المستخدم مسجل دخوله
+        uploaderSection.classList.remove('d-none');
+        loginPrompt.classList.add('d-none');
+    } else {
+        // المستخدم ليس مسجلاً دخوله
+        uploaderSection.classList.add('d-none');
+        loginPrompt.classList.remove('d-none');
+    }
+});
+
+// تسجيل الخروج
+logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+});
+
+// دالة رفع الملفات
+const handleUpload = async () => {
     const file = fileInput.files[0];
     if (!file) {
         statusMessage.textContent = '⚠️ الرجاء اختيار ملف أولاً.';
         return;
     }
 
-    const storageRef = storage.ref(`uploads/${Date.now()}_${file.name}`);
-    const task = storageRef.put(file);
+    uploadBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    statusMessage.textContent = '⏳ جاري رفع الملف...';
+    resultSection.classList.add('d-none');
+    
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data, error } = await supabase.storage
+        .from('uploads') // اسم الـ bucket الذي أنشأته
+        .upload(fileName, file);
 
-    task.on('state_changed',
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            progressBar.style.width = progress + '%';
-            progressBarContainer.classList.remove('d-none');
-            uploadBtn.disabled = true;
-            statusMessage.textContent = '';
-            resultSection.classList.add('d-none');
-        },
-        (error) => {
-            statusMessage.textContent = `❌ حدث خطأ: ${error.message}`;
-            uploadBtn.disabled = false;
-            progressBarContainer.classList.add('d-none');
-        },
-        () => {
-            // هذا الجزء هو المسؤول عن إظهار الرابط بعد النجاح
-            task.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                console.log('File available at', downloadURL); // لغرض التجربة في الكونسول
-                resultUrlInput.value = downloadURL;
-                resultSection.classList.remove('d-none'); // إظهار قسم النتائج
-                uploadBtn.disabled = false;
-                progressBarContainer.classList.add('d-none'); // إخفاء شريط التقدم
-            });
-        }
-    );
+    uploadBtn.disabled = false;
+    spinner.classList.add('d-none');
+
+    if (error) {
+        statusMessage.textContent = `❌ حدث خطأ: ${error.message}`;
+    } else {
+        statusMessage.textContent = '';
+        const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(fileName);
+        resultUrlInput.value = publicUrl;
+        resultSection.classList.remove('d-none');
+    }
 };
 
+// دالة نسخ الرابط
 const copyUrlToClipboard = () => {
     resultUrlInput.select();
     document.execCommand('copy');
