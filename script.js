@@ -16,15 +16,15 @@ const resultSection = document.getElementById('result-section');
 const resultUrlInput = document.getElementById('result-url');
 const copyBtn = document.getElementById('copy-btn');
 const spinner = uploadBtn.querySelector('span');
+const progressBarContainer = document.getElementById('progress-bar-container');
+const progressBar = document.getElementById('progress-bar');
 
 // التحقق من حالة تسجيل الدخول
 supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
-        // المستخدم مسجل دخوله
         uploaderSection.classList.remove('d-none');
         loginPrompt.classList.add('d-none');
     } else {
-        // المستخدم ليس مسجلاً دخوله
         uploaderSection.classList.add('d-none');
         loginPrompt.classList.remove('d-none');
     }
@@ -47,14 +47,20 @@ const handleUpload = async () => {
     spinner.classList.remove('d-none');
     statusMessage.textContent = '⏳ جاري رفع الملف...';
     resultSection.classList.add('d-none');
+    progressBarContainer.classList.remove('d-none');
+    progressBar.style.width = '0%';
     
     const fileName = `${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
-        .from('uploads') // اسم الـ bucket الذي أنشأته
-        .upload(fileName, file);
+        .from('uploads')
+        .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+        });
 
     uploadBtn.disabled = false;
     spinner.classList.add('d-none');
+    progressBarContainer.classList.add('d-none');
 
     if (error) {
         statusMessage.textContent = `❌ حدث خطأ: ${error.message}`;
